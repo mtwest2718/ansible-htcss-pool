@@ -64,6 +64,7 @@
       - condor
       - htcondor-release
     state: absent
+    autoremove: True
   when:
     - current_condor is defined
     - major_version != current_condor
