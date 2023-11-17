@@ -24,9 +24,7 @@
 - name: Add codeready builder repository from RedHat subscription
   community.general.rhsm_repository:
     name: "codeready-builder-for-rhel-{{ ansible_distribution_major_version }}-{{ ansible_architecture }}-rpms"
-  when:
-    - ansible_distribution == "RedHat"
-    - ansible_distribution_major_version | int >= 8
+  when: ansible_distribution_major_version | int >= 8
 
 # non RHEL distros in the RedHat family have different ways of getting the same code as in CodeReady Builder
 - name: Enable extra repositories in RHEL8
@@ -46,7 +44,52 @@
     update_cache: True
     enablerepo: "{{ configman_repo }}"
   when:
-    - ansible_os_family == "Redhat"
     - ansible_distribution != "RedHat"
     - ansible_distribution_major_version | int >= 8
+
+# The HTCondor install
+- name: which version of the htcondor-release rpm is installed?
+  set_fact:
+    current_htcss: "{{ ansible_facts.packages['htcondor-release'][0].version }}"
+  when: "'htcondor-release' in ansible_facts.packages"
+
+- name: which version of htcondor is installed
+  set_fact:
+    current_condor: "{{ ansible_facts.packages['condor'][0].version }}" | int
+  when: "'condor' in ansible_facts.packages"
+
+- name: Remove previously installed version of condor
+  yum:
+    name:
+      - condor
+      - htcondor-release
+    state: absent
+  when:
+    - current_condor is defined
+    - major_version != current_condor
+
+- name: Remove condor directory from previous install
+  file:
+    path: /etc/condor
+    state: absent
+  when:
+    - current_condor is defined
+    - major_version != current_condor
+
+- name: Add HTCondor GPG key
+  rpm_key:
+    state: present
+    key: "{{ download_url }}/keys/HTCondor-{{ htcss_version }}-Key"
+  when: (current_htcss is undefined) or (htcss_version != current_htcss)
+
+- name: Add HTCSS version release rpm
+  yum:
+    name: "{{ download_url }}/{{ htcss_version }}/el{{ ansible_distribution_major_version }}/{{ ansible_architecture }}/release/htcondor-release-{{ htcss_version }}-1.el{{ ansible_distribution_major_version }}.noarch.rpm"
+    state: present
+  when: (current_htcss is undefined) or (htcss_version != current_htcss)
+
+- name: install HTCSS
+  yum:
+    name: condor
+    state: latest
 
