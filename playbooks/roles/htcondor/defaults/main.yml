@@ -13,6 +13,12 @@ htcss_version: "{{ major_version }}.{{ series }}"
 # URL for HTCondor RPM repo 
 download_url: "https://research.cs.wisc.edu/htcondor/repo"
 
+# HTCondor roles:
+# Are overwrited it htcondor_type_of_node is set
+htcondor_role_manager: false
+htcondor_role_access: false
+htcondor_role_execute: false
+
 # Configuration for using a Shared File-System
 # https://htcondor.readthedocs.io/en/latest/admin-manual/configuration-macros.html#shared-file-system-configuration-file-macros
 # https://htcondor.readthedocs.io/en/latest/users-manual/submitting-a-job.html#submitting-jobs-using-a-shared-file-system
