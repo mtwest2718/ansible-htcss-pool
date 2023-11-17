@@ -1,12 +1,14 @@
 ---
 # HTCSS version: https://research.cs.wisc.edu/htcondor/repo/keys/
-# NEW version syntax:
+# NEW yearly version syntax:
 #   YY.0 - stable series (just bug fixes)
 #   YY.x - current series: new features + bug fixes
 # Example values:
 #   23.0
 #   23.x
-htcss_version: 23.x
+major_version: 23
+series: x
+htcss_version: "{{ major_version }}.{{ series }}"
 
 # URL for HTCondor RPM repo 
 download_url: "https://research.cs.wisc.edu/htcondor/repo"
