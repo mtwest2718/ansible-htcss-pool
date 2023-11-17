@@ -8,7 +8,38 @@ Ansible Role to install the HTCondor Software Suite (https://research.cs.wisc.ed
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+Explicit variables that can be included in the playbook
+
+```yaml
+# HTCondor's semantic versioning syntax
+# Major version values:
+#   9
+#   10
+#   23
+# Series (former name)
+#   0   (stable)    - just bug fixes
+#   x   (current)   - minor feature additions & bug fixes
+major_version: 23
+series: x
+
+# the (DNS or IPv*) address of the central manager's host machine
+cm_host_address: '192.168.122.13'
+
+# The configuration flags for a nodes role in the pool
+htcondor_role_manager: false
+htcondor_role_access: false
+htcondor_role_execute: false
+
+# If the cluster uses a (networked) shared file system
+shared_fs_domain: '192.168.22.42'
+```
+
+Also some import password variables stored in the (encrypted) `secrets.yml` file
+
+```yaml
+htcss_pool_password: changeme
+ansible_become_password: pwd12345
+```
 
 Example Playbook
 ----------------
@@ -21,7 +52,7 @@ Here is an example (`cm.yml`) of a playbook to set up a node to be the HTCondor 
   become: True
 
   vars:
-    cm_host_address: '192.168.122.159'
+    cm_host_address: '192.168.122.13'
 
   var_files:
     - secrets.yml
@@ -33,6 +64,8 @@ Here is an example (`cm.yml`) of a playbook to set up a node to be the HTCondor 
 
 And here is how to run the above playbook:
 ```bash
-ansible-playbook cm.yml -i ./inventory/servers.yml
+ansible-playbook --ask-vault-pass cm.yml
 ```
+
+This presumes that the inventory file `servers.yml` has been specified in `ansible.cfg` and has a subsection called `central_manager.`
 
