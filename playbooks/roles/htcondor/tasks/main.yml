@@ -1,2 +1,118 @@
 ---
-# tasks file for htcondor
+# These steps are based on:
+# https://research.cs.wisc.edu/htcondor/get/
+
+- name: Include "{{ansible_os_family}}" HTCondor recipe
+  include_tasks: "{{ansible_os_family}}.yaml"
+
+# Specific roles for a particular node based on htcondor_role_* flags
+- name: Configure HTCondor manager role
+  template:
+    src: 01-central-manager.config.j2
+    dest: /etc/condor/config.d/01-central-manager.config
+    owner: root
+    group: root
+    mode: '0644'
+  when: htcondor_role_manager
+
+- name: configure htcondor submit role
+  template:
+    src: 01-submit.config.j2
+    dest: /etc/condor/config.d/01-submit.config
+    owner: root
+    group: root
+    mode: '0644'
+  when: htcondor_role_access
+
+- name: Configure HTCondor execute role
+  template:
+    src: 01-execute.config.j2
+    dest: /etc/condor/config.d/01-execute.config
+    owner: root
+    group: root
+    mode: '0644'
+  when: htcondor_role_execute
+
+# Configuring HTCondor's integration with a shared file system
+- name: configure htcondor shared filesystem domain
+  template:
+    src: 02-domain.config.j2
+    dest: /etc/condor/config.d/02-domain.config
+    owner: root
+    group: root
+    mode: '0644'
+  when: ((htcondor_role_access or htcondor_role_execute) and htcondor_domain != "")
+
+# Implementing password & token security configs
+- name: Remove the default security configuration for HTCondor 9.0
+  file:
+    path: /etc/condor/config.d/00-htcondor-9.0.config
+    state: absent
+  when: major_version > 9
+
+- name: Get pool password directory
+  command: condor_config_val SEC_PASSWORD_DIRECTORY
+  changed_when: false
+  register: password_dir
+
+- name: Ensure that the password directory exists
+  file:
+    path: "{{ password_dir.stdout }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Store Condor credentials
+  command: condor_store_cred add -c -i -
+  args:
+    creates: "/etc/condor/passwords.d/POOL"
+    stdin: "{{ htcss_pool_password }}"
+    stdin_add_newline: False
+
+- name: Get tokens directory
+  command: condor_config_val SEC_TOKEN_SYSTEM_DIRECTORY
+  changed_when: False
+  register: token_dir
+
+- name: Ensure that the tokens directory exists
+  file:
+    path: "{{ token_dir.stdout }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Issue Condor token
+  shell: condor_token_create -identity condor@{{ htcondor_server }} > {{ token_dir.stdout }}/condor@{{ cm_host_address }}
+  args:
+    creates: "{{ token_dir.stdout }}/condor@{{ cm_host_address }}"
+
+# Managing open firewall ports
+- name: Is firewalld installed?
+  package:
+    name: firewalld
+    state: present
+
+- name: Open SSH port
+  ansible.posix.firewalld:
+    service: ssh
+    permanent: True
+    immediate: True
+    state: enabled
+    zone: public
+
+- name: Open port 9618 for use by HTCondor
+  ansible.posix.firewalld:
+    port: 9618/tcp
+    permanent: True
+    immediate: True
+    state: enabled
+    zone: public
+
+# Start up condor_master daemon on node
+- name: Start and enable htcondor service
+  service:
+    name: condor
+    state: started
+    enabled: True
