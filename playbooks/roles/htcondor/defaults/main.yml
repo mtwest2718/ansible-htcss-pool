@@ -8,6 +8,9 @@
 #   23.x
 htcss_version: 23.x
 
+# URL for HTCondor RPM repo 
+download_url: "https://research.cs.wisc.edu/htcondor/repo"
+
 # Configuration for using a Shared File-System
 # https://htcondor.readthedocs.io/en/latest/admin-manual/configuration-macros.html#shared-file-system-configuration-file-macros
 # https://htcondor.readthedocs.io/en/latest/users-manual/submitting-a-job.html#submitting-jobs-using-a-shared-file-system
