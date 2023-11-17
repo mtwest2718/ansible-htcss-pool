@@ -1,2 +1,5 @@
 ---
-# vars file for htcondor
+# URL for HTCondor RPM repo 
+download_url: "https://research.cs.wisc.edu/htcondor/repo"
+
+

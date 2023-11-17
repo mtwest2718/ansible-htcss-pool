@@ -1,20 +1,17 @@
 ---
-# HTCSS version: https://research.cs.wisc.edu/htcondor/repo/keys/
-# NEW yearly version syntax:
-#   YY.0 - stable series (just bug fixes)
-#   YY.x - current series: new features + bug fixes
-# Example values:
-#   23.0
-#   23.x
+# HTCondor's semantic versioning syntax
+# Major version values:
+#   9
+#   10
+#   23
+# Series (former name)
+#   0   (stable)    - just bug fixes
+#   x   (current)   - minor feature additions & bug fixes
 major_version: 23
 series: x
 htcss_version: "{{ major_version }}.{{ series }}"
 
-# URL for HTCondor RPM repo 
-download_url: "https://research.cs.wisc.edu/htcondor/repo"
-
-# HTCondor roles:
-# Are overwrited it htcondor_type_of_node is set
+# The configuration flags for a nodes role in the pool
 htcondor_role_manager: false
 htcondor_role_access: false
 htcondor_role_execute: false
@@ -24,8 +21,8 @@ htcondor_role_execute: false
 # https://htcondor.readthedocs.io/en/latest/users-manual/submitting-a-job.html#submitting-jobs-using-a-shared-file-system
 shared_fs_domain: ""
 
-# The address for the central-manager
+# The (DNS or IPv*) address for the central-manager
 cm_host_address: ""
 
-# The pool password
+# The pool password (preferably stored in an encrypted secrets file)
 htcss_pool_password: changeme
