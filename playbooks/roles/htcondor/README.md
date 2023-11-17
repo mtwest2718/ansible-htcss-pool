@@ -34,7 +34,7 @@ htcondor_role_execute: false
 shared_fs_domain: '192.168.22.42'
 ```
 
-Also some import password variables stored in the (encrypted) `secrets.yml` file
+Also some important passwords stored in the (encrypted) `secrets.yml` file
 
 ```yaml
 htcss_pool_password: changeme
@@ -64,8 +64,7 @@ Here is an example (`cm.yml`) of a playbook to set up a node to be the HTCondor 
 
 And here is how to run the above playbook:
 ```bash
-ansible-playbook --ask-vault-pass cm.yml
+ansible-playbook --ask-vault-pass cm.yml -i ./inventory/servers.yml
 ```
 
-This presumes that the inventory file `servers.yml` has been specified in `ansible.cfg` and has a subsection called `central_manager.`
 
