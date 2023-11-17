@@ -1,0 +1,52 @@
+---
+# RedHat OS family system setup
+# Base on get_htcondor script: https://research.cs.wisc.edu/htcondor/get/
+
+- name: Additional base packages
+  package:
+    name:
+      - procps-ng
+    state: latest
+
+- name: Add epel repository for EL major version
+  yum_repository:
+    name: epel
+    description: EPEL YUM repo
+    baseurl: https://dl.fedoraproject.org/pub/epel/$releasever/Everything/$basearch/
+    gpgkey: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}
+    repo_gpgcheck: True
+
+- name: Install epel release packages
+  package:
+    name: epel-release
+    state: latest
+
+- name: Add codeready builder repository from RedHat subscription
+  community.general.rhsm_repository:
+    name: "codeready-builder-for-rhel-{{ ansible_distribution_major_version }}-{{ ansible_architecture }}-rpms"
+  when:
+    - ansible_distribution == "RedHat"
+    - ansible_distribution_major_version | int >= 8
+
+# non RHEL distros in the RedHat family have different ways of getting the same code as in CodeReady Builder
+- name: Enable extra repositories in RHEL8
+  set_fact:
+    configman_repo: "powertools"
+  when: ansible_distribution_major_version|int == 8
+
+- name: Enable extra repositories in RHEL9
+  set_fact:
+    configman_repo: "crb"
+  when: ansible_distribution_major_version|int == 9
+
+- name: Non-RedHat EL distros need additional plugins
+  yum:
+    name: dnf-plugins-core
+    state: present
+    update_cache: True
+    enablerepo: "{{ configman_repo }}"
+  when:
+    - ansible_os_family == "Redhat"
+    - ansible_distribution != "RedHat"
+    - ansible_distribution_major_version | int >= 8
+
