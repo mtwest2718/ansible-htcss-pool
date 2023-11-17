@@ -1,2 +1,20 @@
 ---
-# defaults file for htcondor
+# HTCSS version: https://research.cs.wisc.edu/htcondor/repo/keys/
+# NEW version syntax:
+#   YY.0 - stable series (just bug fixes)
+#   YY.x - current series: new features + bug fixes
+# Example values:
+#   23.0
+#   23.x
+htcss_version: 23.x
+
+# Configuration for using a Shared File-System
+# https://htcondor.readthedocs.io/en/latest/admin-manual/configuration-macros.html#shared-file-system-configuration-file-macros
+# https://htcondor.readthedocs.io/en/latest/users-manual/submitting-a-job.html#submitting-jobs-using-a-shared-file-system
+shared_fs_domain: ""
+
+# The address for the central-manager
+cm_host_address: ""
+
+# The pool password
+htcss_pool_password: changeme
