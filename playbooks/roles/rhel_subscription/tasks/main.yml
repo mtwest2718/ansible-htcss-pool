@@ -1,0 +1,8 @@
+---
+# Using an individual's RedHat username and password to register a server
+- name: Register subscription
+  community.general.redhat_subscription:
+    state: present
+    username: '{{ redhat_acct }}'
+    password: '{{ redhat_pwd }}'
+
