@@ -1,0 +1,44 @@
+---
+# Setup Singularity-CE dependencies for RedHat OS Family based on:
+# # https://sylabs.io/2022/12/how-to-install-singularityce-from-epel-repository/
+
+- name: Install the 'Development tools' package group
+  ansible.builtin.package:
+    name: '@Development tools'
+    state: present
+
+- name: Add EPEL repository
+  ansible.builtin.yum_repository:
+    name: epel
+    description: EPEL YUM repo
+    baseurl: https://dl.fedoraproject.org/pub/epel/$releasever/Everything/$basearch/
+    gpgcheck: no
+
+- name: Install epel release packages
+  ansible.builtin.package:
+    name: epel-release
+    state: latest
+
+- name: Install primary dependencies
+  ansible.builtin.package:
+    name:
+      - libseccomp-devel
+      - glib2-devel
+      - squashfs-tools
+      - cryptsetup
+      - runc
+      - crun
+    state: present
+
+- name: Enable COPR squashfs-tools repo
+  community.general.copr:
+    host: copr.fedorainfracloud.org
+    state: enabled
+    name: dctrud/squashfs-tools-ng
+    chroot: "epel-{{ ansible_distribution_major_version }}-{{ ansible_architecture }}"
+
+- name: Install primary dependencies
+  ansible.builtin.package:
+    name: squashfs-tools-ng
+    state: present
+

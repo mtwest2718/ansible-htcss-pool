@@ -1,2 +1,12 @@
 ---
-# tasks file for singularity-ce
+# Installing the Singularity-CE software based on
+# https://sylabs.io/2022/12/how-to-install-singularityce-from-epel-repository/
+
+- name: Include "{{ansible_os_family}}" Sylabs Singularity recipe
+  include_tasks: "{{ansible_os_family}}.yaml"
+
+- name: Install singularity community edition
+  ansible.builtin.package:
+    name: singularity-ce
+    state: present
+
