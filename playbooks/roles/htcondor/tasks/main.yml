@@ -69,6 +69,7 @@
     creates: "/etc/condor/passwords.d/POOL"
     stdin: "{{ htcss_pool_password }}"
     stdin_add_newline: False
+  no_log: True
 
 - name: Get tokens directory
   command: condor_config_val SEC_TOKEN_SYSTEM_DIRECTORY
@@ -87,20 +88,13 @@
   shell: condor_token_create -identity condor@{{ htcondor_server }} > {{ token_dir.stdout }}/condor@{{ cm_host_address }}
   args:
     creates: "{{ token_dir.stdout }}/condor@{{ cm_host_address }}"
+  no_log: True
 
 # Managing open firewall ports
 - name: Is firewalld installed?
   package:
     name: firewalld
     state: present
-
-- name: Open SSH port
-  ansible.posix.firewalld:
-    service: ssh
-    permanent: True
-    immediate: True
-    state: enabled
-    zone: public
 
 - name: Open port 9618 for use by HTCondor
   ansible.posix.firewalld:
